@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bhsoftware.projectserver.mapper.BookMapper">
+    <resultMap id="bookMap" type="com.bhsoftware.projectserver.entity.Book">
+        <result property="id" column="id"></result>
+        <result property="cover" column="cover"></result>
+        <result property="title" column="title"></result>
+        <result property="author" column="author"></result>
+        <result property="date" column="date"></result>
+        <result property="press" column="press"></result>
+        <result property="abs" column="abs"></result>
+        <result property="press" column="press"></result>
+        <collection property="menu" javaType="com.bhsoftware.projectserver.entity.Menu">
+            <result column="id" property="id"></result>
+            <result column="name" property="name"></result>
+        </collection>
+    </resultMap>
+    <select id="getListBook2" resultMap="bookMap">
+        SELECT * FROM book LEFT JOIN menu ON book.cid=menu.id
+    </select>
+    <select id="getNewListBook" resultMap="bookMap">
+        SELECT book.id,book.title,book.abs,book.author,book.cover,book.date,book.cid,book.press,menu.name,menu.id
+         FROM book LEFT JOIN menu ON book.cid=menu.id WHERE 1=1
+        <if test="cid != null and cid != '' ">
+            AND menu.id=#{cid}
+        </if>
+        <if test="title != null and title != '' ">
+            AND title LIKE CONCAT('%',#{title},'%')
+        </if>
+    </select>
+</mapper>

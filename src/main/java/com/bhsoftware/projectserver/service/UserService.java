@@ -6,7 +6,6 @@ import com.bhsoftware.projectserver.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.print.DocFlavor;
 import java.util.List;
 
 @Service
@@ -32,5 +31,24 @@ public class UserService {
 
     public List<User> getListUser(String username){
         return userMapper.getListUser(username);
+    }
+
+
+    /**增加用户
+     * @param username 用户名
+     * @param password 密码
+     * @param email 邮箱
+     * @param phone 电话
+     * @param realname 真实姓名
+     */
+    public void addUser(String username, String password, String email,String phone,String realname){
+        userMapper.insertUser(username,password,email,phone,realname);
+    }
+
+    public User getUser(String username,String phone,String email){
+        return userMapper.getUser(username,phone,email);
+    }
+    public User getUserPhone(String phone){
+        return userMapper.getUserPhone(phone);
     }
 }

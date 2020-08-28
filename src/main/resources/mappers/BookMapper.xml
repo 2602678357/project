@@ -11,7 +11,7 @@
         <result property="abs" column="abs"></result>
         <result property="press" column="press"></result>
         <collection property="menu" javaType="com.bhsoftware.projectserver.entity.Menu">
-            <result column="id" property="id"></result>
+            <result column="cid" property="id"></result>
             <result column="name" property="name"></result>
         </collection>
     </resultMap>
@@ -19,7 +19,7 @@
         SELECT * FROM book LEFT JOIN menu ON book.cid=menu.id
     </select>
     <select id="getNewListBook" resultMap="bookMap">
-        SELECT book.id,book.title,book.abs,book.author,book.cover,book.date,book.cid,book.press,menu.name,menu.id
+        SELECT book.id,book.title,book.abs,book.author,book.cover,book.date,book.cid,book.press,menu.name,menu.id as mid
          FROM book LEFT JOIN menu ON book.cid=menu.id WHERE 1=1
         <if test="cid != null and cid != '' ">
             AND menu.id=#{cid}

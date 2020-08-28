@@ -23,4 +23,10 @@ public class WebAppConfigurer implements WebMvcConfigurer {
         registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**").excludePathPatterns("/index.html");
     }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/api/file/**").addResourceLocations("file:" +
+                "d:/vue/img1/");
+    }
 }

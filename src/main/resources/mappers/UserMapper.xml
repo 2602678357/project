@@ -5,10 +5,13 @@
         <result column="id" property="id"></result>
         <result column="username" property="username"></result>
         <result column="password" property="password"></result>
+
     </resultMap>
-
-<select id="getUserByUsernameAndPasswordTest" resultMap="userMap">
-    select * from user where username =#{username} AND password=#{password}
-</select>
-
+    <select id="getUserByUsernameAndPasswordTest" resultMap="userMap">
+        select * from user where username =#{username} AND password=#{password}
+    </select>
+    <select id="selectByUserNameAndPassword" resultType="com.huanjing.entity.User">
+		SELECT *
+		FROM user WHERE username=#{username} AND password=#{password}
+	</select>
 </mapper>

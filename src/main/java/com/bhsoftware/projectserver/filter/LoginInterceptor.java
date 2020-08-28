@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
 /**
  * 自定义登录拦截器
  */
-@Component
+//@Component
 public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle (HttpServletRequest httpServletRequest,

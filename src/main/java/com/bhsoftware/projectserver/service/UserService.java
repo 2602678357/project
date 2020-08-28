@@ -48,6 +48,10 @@ public class UserService {
     public User getUser(String username,String phone,String email){
         return userMapper.getUser(username,phone,email);
     }
+
+    public User getUserByName(String username){
+        return userMapper.getUserByName(username);
+    }
     public User getUserPhone(String phone){
         return userMapper.getUserPhone(phone);
     }

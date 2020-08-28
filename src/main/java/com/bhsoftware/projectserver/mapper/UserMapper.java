@@ -40,4 +40,14 @@ public interface UserMapper {
     @Select("select phone from user where  phone = #{phone}")
     User getUserPhone(@Param(value = "phone") String phone);
 
+    @Select("select username from user where  phone = #{username}")
+    User getUserByName(@Param(value = "username") String username);
+
+    /**
+     * 根据用户名和密码查找用户
+     * @param username
+     * @param password
+     * @return
+     */
+    User selectByUserNameAndPassword(@Param("username") String username,@Param("password")String password);
 }

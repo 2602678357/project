@@ -11,6 +11,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -94,21 +97,43 @@ public class LoginController {
 //            return new Result(400);
 //        }
 //    }
-    @ApiOperation(value = "用戶登录", notes = "用户登录")
-    @PostMapping(value = "/api/login")
-    @ResponseBody
-    public Result login(@RequestBody User requestUser, HttpSession session) {
+//    @ApiOperation(value = "用戶登录", notes = "用户登录")
+//    @PostMapping(value = "/api/login")
+//    @ResponseBody
+//    public Result login(@RequestBody User requestUser, HttpSession session) {
+//
+//        String username = requestUser.getUsername();
+//        String password = requestUser.getPassword();
+//        User user = userService.LoginJpa(username, password);
+//        if (user != null) {
+//            session.setAttribute("user", user);
+//            return new Result(200);
+//        } else {
+//            return new Result(400);
+//        }
+//    }
 
+
+
+
+    @ApiOperation(value = "shiro用户登录", notes = "shiro用户登录")
+    @RequestMapping(value = "/sys/login",method = RequestMethod.POST)
+    @ResponseBody
+    public Result login(@RequestBody User requestUser) {
         String username = requestUser.getUsername();
         String password = requestUser.getPassword();
-        User user = userService.LoginJpa(username, password);
-        if (user != null) {
-            session.setAttribute("user", user);
-            return new Result(200);
-        } else {
-            return new Result(400);
+        //提交登录
+        Subject subject = SecurityUtils.getSubject();
+        if (!subject.isAuthenticated()) {
+            UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+            subject.login(token);
+            return  new Result(200);
+        }
+        else {
+            return  new Result(400);
         }
     }
+
 
     @ApiOperation(value = "返回所有用户", notes = "返回所有用户")
     @GetMapping("/api/find")

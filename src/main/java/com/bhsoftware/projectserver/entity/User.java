@@ -23,7 +23,8 @@ public class User {
     private String password;
     private Integer status;
     private String email;
-    private String realname;
+    private String name;
     private String phone;
     private String salt;
+
 }

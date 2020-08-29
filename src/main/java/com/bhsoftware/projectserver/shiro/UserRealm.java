@@ -2,11 +2,13 @@ package com.bhsoftware.projectserver.shiro;
 
 import com.bhsoftware.projectserver.entity.User;
 import com.bhsoftware.projectserver.mapper.UserMapper;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.slf4j.Logger;
@@ -49,11 +51,10 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken token= (UsernamePasswordToken) authenticationToken;
-        final String userName=token.getUsername();
+        final String username=token.getUsername();
         final String password=String.valueOf(token.getPassword());
-
-        User user= userMapper.getUserByUsernameAndPassword(userName,password);
-        //User entity=userDao.selectByUserNameAndPassword(userName,password);
+        User user= userMapper.selectByUserName(username);
+        System.out.println(user.toString());
         //账户不存在
         if(user==null){
             throw new UnknownAccountException("账户不存在");
@@ -62,8 +63,11 @@ public class UserRealm extends AuthorizingRealm {
         if(0==user.getStatus()){
             throw  new DisabledAccountException("账户已被禁用");
         }
-        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user,user.getPassword(), ByteSource.Util.bytes(user.getSalt()), user.getRealname());
+        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user,user.getPassword(), ByteSource.Util.bytes(user.getSalt()),getName());
         log.info("信息是:",info);
+        Session session=SecurityUtils.getSubject().getSession();
+        session.setAttribute("user",user);
+        session.setTimeout(60000);//设置session 10分钟
         return info;
     }
 

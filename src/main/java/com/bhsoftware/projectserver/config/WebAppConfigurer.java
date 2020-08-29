@@ -29,4 +29,5 @@ public class WebAppConfigurer implements WebMvcConfigurer {
         registry.addResourceHandler("/api/file/**").addResourceLocations("file:" +
                 "d:/vue/img1/");
     }
+
 }

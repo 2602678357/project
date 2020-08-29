@@ -4,7 +4,9 @@ import com.bhsoftware.projectserver.JPADao.JpaBookDao;
 import com.bhsoftware.projectserver.entity.*;
 import com.bhsoftware.projectserver.result.Result;
 import com.bhsoftware.projectserver.service.*;
+import com.bhsoftware.projectserver.shiro.ShiroUtil;
 import com.bhsoftware.projectserver.utils.Response;
+import com.bhsoftware.projectserver.utils.SaltUtil;
 import com.bhsoftware.projectserver.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.pagehelper.PageHelper;
@@ -101,10 +103,10 @@ public class LoginController {
 //    @PostMapping(value = "/api/login")
 //    @ResponseBody
 //    public Result login(@RequestBody User requestUser, HttpSession session) {
-//
 //        String username = requestUser.getUsername();
 //        String password = requestUser.getPassword();
 //        User user = userService.LoginJpa(username, password);
+//        System.out.println(user.toString());
 //        if (user != null) {
 //            session.setAttribute("user", user);
 //            return new Result(200);
@@ -117,7 +119,7 @@ public class LoginController {
 
 
     @ApiOperation(value = "shiro用户登录", notes = "shiro用户登录")
-    @RequestMapping(value = "/sys/login",method = RequestMethod.POST)
+    @PostMapping(value = "/api/login")
     @ResponseBody
     public Result login(@RequestBody User requestUser) {
         String username = requestUser.getUsername();
@@ -132,6 +134,15 @@ public class LoginController {
         else {
             return  new Result(400);
         }
+    }
+
+    @ApiOperation(value = "用户退出登录", notes = "用户退出登录")
+    @PostMapping("/api/loginout")
+    @ResponseBody
+    public Result logout() {
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+        return new  Result(200);
     }
 
 
@@ -243,9 +254,10 @@ public class LoginController {
     }
 
     @ApiOperation(value = "查询所有分类下图书", notes = "查询所有分类下图书")
-    @GetMapping("/api/categories/{cid}/books")
+    @GetMapping("/api/categories/{cid}")
     @ResponseBody
     public List<Book> listByMenu(@PathVariable("cid") int cid) {
+        System.out.println(cid);
         if (cid != 0 && cid != 7) {
             return bookService.listByMenu(cid);
         } else if (cid == 7) {
@@ -332,13 +344,14 @@ public class LoginController {
     @ResponseBody
     public Result addUser(@RequestBody User requestUser){
         String username=requestUser.getUsername();
-        String password=requestUser.getPassword();
+        String getpassword=requestUser.getPassword();
         String phone=requestUser.getPhone();
-        String realname=requestUser.getRealname();
+        String name=requestUser.getName();
         String email=requestUser.getEmail();
-        User user=userService.getUser(username,phone,email);
+        User user=userService.getUserByName(username);
         if(user==null){
-            userService.addUser(username,password,email,phone,realname);
+            String password= ShiroUtil.sha256(getpassword, SaltUtil.getSalt());
+            userService.addUser(username,password,email,phone,name,SaltUtil.getSalt());
             return new Result(200);
         }
         return new Result(400);

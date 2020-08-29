@@ -26,12 +26,13 @@ public interface UserMapper {
     List<User> getListUser(@Param(value="username")String username);
 
 
-    @Insert("insert into user(username, password,email,phone,realname) values(#{username}, #{password},#{email}, #{phone}, #{realname})")
+    @Insert("insert into user(username, password,email,phone,name,salt) values(#{username}, #{password},#{email}, #{phone}, #{name},#{salt})")
     void insertUser(@Param(value="username")String username,
                     @Param(value="password")String password,
                     @Param(value="email")String email,
                     @Param(value="phone")String phone,
-                    @Param(value="realname")String realname);
+                    @Param(value="name")String name,
+                    @Param(value="salt")String salt);
 
 
     @Select("select username,email,phone from user where username = #{username} AND email = #{email} AND phone = #{phone}")
@@ -49,5 +50,5 @@ public interface UserMapper {
      * @param password
      * @return
      */
-    User selectByUserNameAndPassword(@Param("username") String username,@Param("password")String password);
+    User selectByUserName(@Param("username") String username);
 }

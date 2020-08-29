@@ -31,14 +31,23 @@ public class ShiroConfig {
         shiroFilter.setSecurityManager(securityManager);
 
         //设定用户没有登录认证时的跳转链接、没有授权时的跳转链接
-        shiroFilter.setLoginUrl("/api/login");
+        shiroFilter.setLoginUrl("/login");
         shiroFilter.setUnauthorizedUrl("/");
 
         //过滤器链配置
         Map<String, String> filterMap = new LinkedHashMap();
 
+        filterMap.put("/login", "anon");
         filterMap.put("/api/login", "anon");
+        filterMap.put("/api/*", "anon");
+        filterMap.put("/api/categories/*", "anon");
         filterMap.put("/favicon.ico", "anon");
+        filterMap.put("/static/**", "anon");
+        filterMap.put("/docs", "anon");
+        filterMap.put("/swagger-ui.html", "anon");
+        filterMap.put("/webjars/springfox-swagger-ui/**", "anon");
+        filterMap.put("/swagger-resources/**", "anon");
+        filterMap.put("/v2/api-docs", "anon");
         filterMap.put("/**","authc");
 
         shiroFilter.setFilterChainDefinitionMap(filterMap);

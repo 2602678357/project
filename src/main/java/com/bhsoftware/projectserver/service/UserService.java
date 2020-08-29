@@ -41,8 +41,8 @@ public class UserService {
      * @param phone 电话
      * @param realname 真实姓名
      */
-    public void addUser(String username, String password, String email,String phone,String realname){
-        userMapper.insertUser(username,password,email,phone,realname);
+    public void addUser(String username, String password, String email,String phone,String name,String salt){
+        userMapper.insertUser(username,password,email,phone,name,salt);
     }
 
     public User getUser(String username,String phone,String email){

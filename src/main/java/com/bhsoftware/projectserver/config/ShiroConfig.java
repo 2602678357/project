@@ -38,6 +38,7 @@ public class ShiroConfig {
         Map<String, String> filterMap = new LinkedHashMap();
 
         filterMap.put("/login", "anon");
+        filterMap.put("/api/sms/*", "anon");
         filterMap.put("/api/login", "anon");
         filterMap.put("/api/*", "anon");
         filterMap.put("/api/categories/*", "anon");

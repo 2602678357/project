@@ -1,13 +1,12 @@
 package com.bhsoftware.projectserver.controller;
 
+import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.bhsoftware.projectserver.JPADao.JpaBookDao;
 import com.bhsoftware.projectserver.entity.*;
 import com.bhsoftware.projectserver.result.Result;
 import com.bhsoftware.projectserver.service.*;
 import com.bhsoftware.projectserver.shiro.ShiroUtil;
-import com.bhsoftware.projectserver.utils.Response;
-import com.bhsoftware.projectserver.utils.SaltUtil;
-import com.bhsoftware.projectserver.utils.StringUtils;
+import com.bhsoftware.projectserver.utils.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -17,6 +16,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -253,6 +253,11 @@ public class LoginController {
         return map;
     }
 
+    /**
+     * 得到不同分类下的
+     * @param cid
+     * @return
+     */
     @ApiOperation(value = "查询所有分类下图书", notes = "查询所有分类下图书")
     @GetMapping("/api/categories/{cid}")
     @ResponseBody
@@ -266,6 +271,12 @@ public class LoginController {
         return bookService.list();
     }
 
+    /**
+     * 根据标题模糊搜索得到分类图书下图书
+     * @param cid
+     * @param title
+     * @return
+     */
     @ApiOperation(value = "根据标题模糊搜索得到分类图书下图书", notes = "根据标题模糊搜索得到分类图书下图书")
     @ResponseBody
     @GetMapping("/api/menu/{cid}/{title}")
@@ -317,6 +328,11 @@ public class LoginController {
 
     }
 
+    /**
+     * 实现上传图片
+     * @param file
+     * @return
+     */
     @ApiOperation(value = "文件上传", notes = "文件上传")
     @PostMapping("/api/covers")
     @ResponseBody
@@ -338,7 +354,11 @@ public class LoginController {
     }
 
 
-
+    /**
+     * 用户注册
+     * @param requestUser
+     * @return
+     */
     @ApiOperation(value = "增加用户", notes = "增加用户")
     @PostMapping("/api/addUser")
     @ResponseBody
@@ -357,6 +377,11 @@ public class LoginController {
         return new Result(400);
     }
 
+    /**
+     * 校验用户手机号
+     * @param phone
+     * @return
+     */
     @ApiOperation(value = "校验用户", notes = "校验用户")
     @GetMapping("/api/checkUserPhone")
     @ResponseBody
@@ -367,6 +392,30 @@ public class LoginController {
             return new Result(200);
         }
         return new Result(400);
+    }
+
+    /**
+     * 获取前台验证码
+     * @param phone
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "发送短信", notes = "发送短信")
+    @PostMapping(value = "/api/sms")
+    @ResponseBody
+    public Map<String,Object> smsXxs(@RequestBody User user,HttpSession session) throws Exception {
+        String phone =user.getPhone();
+
+        Map<String,Object> map = new HashMap<String,Object>();
+        // 验证码（指定长度的随机数）
+        String code = CodeUtil.generateVerifyCode(6);
+        String templateParam = "{\"code\":\""+code+"\"}";
+        SendSmsResponse response = SmsUtil.sendSms(phone, templateParam);
+        map.put("verifyCode",code);
+        session.setAttribute("verifyCode",code);
+        map.put("phone",phone);
+        map.put("code","200");
+        return map;
     }
 }
 

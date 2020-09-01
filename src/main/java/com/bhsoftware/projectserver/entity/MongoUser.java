@@ -1,6 +1,5 @@
 package com.bhsoftware.projectserver.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -8,33 +7,27 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.*;
 
-/**
- * 实体类
- */
 @Data
 @ToString
-@Entity
-@Table(name = "user")
-@JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
-public class User {
+@Document(collection = "MongoUser")
+public class MongoUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
-//    @Field("id")
+    @Field("id")
     private int id;
-//    @Field("username")
+        @Field("username")
     private String username;
-//    @Field("password")
+        @Field("password")
     private String password;
-//    @Field("status")
+        @Field("status")
     private Integer status;
-//    @Field("email")
+        @Field("email")
     private String email;
-//    @Field("name")
+        @Field("name")
     private String name;
-//    @Field("phone")
+        @Field("phone")
     private String phone;
-//    @Field("salt")
+        @Field("salt")
     private String salt;
 
 }

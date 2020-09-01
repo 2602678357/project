@@ -370,8 +370,9 @@ public class LoginController {
         String email=requestUser.getEmail();
         User user=userService.getUserByName(username);
         if(user==null){
-            String password= ShiroUtil.sha256(getpassword, SaltUtil.getSalt());
-            userService.addUser(username,password,email,phone,name,SaltUtil.getSalt());
+            String salt =SaltUtil.getSalt();
+            String password= ShiroUtil.sha256(getpassword, salt);
+            userService.addUser(username,password,email,phone,name,salt);
             return new Result(200);
         }
         return new Result(400);
@@ -417,5 +418,18 @@ public class LoginController {
         map.put("code","200");
         return map;
     }
+
+    /**
+     * mongodb新增用户
+     * @param user
+     */
+    @ApiOperation(value = "mongodb新增用户", notes = "mongodb新增用户")
+    @PostMapping(value = "/api/mongdbAdd")
+    @ResponseBody
+    public void addUserByMongdb(@RequestBody User user){
+        userService.insert(user);
+    }
+
+
 }
 

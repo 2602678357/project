@@ -23,7 +23,7 @@ public class SmsUtil {
         System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
         System.setProperty("sun.net.client.defaultReadTimeout", "10000");
         //初始化acsClient,暂不支持region化
-        IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", "LTAI4G5JkPUCb5mbS9GKnq5Z", "t2gDF4Cq0AAe9tWpm9NqwSftlKkdqJ");
+        IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", "", "");//自己的
         DefaultProfile.addEndpoint("cn-hangzhou", "cn-hangzhou", product, domain);
         IAcsClient acsClient = new DefaultAcsClient(profile);
         //组装请求对象-具体描述见控制台-文档部分内容

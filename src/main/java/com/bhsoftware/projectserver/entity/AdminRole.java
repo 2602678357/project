@@ -6,11 +6,13 @@ import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
 
+/**
+ * 角色实体类
+ */
 @Data
 @ToString
-//@Entity
+@Entity
 @Table(name = "admin_role")
 @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
 public class AdminRole {

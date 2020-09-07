@@ -8,9 +8,12 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * 权限菜单实体类
+ */
 @Data
 @ToString
-//@Entity
+@Entity
 @Table(name = "admin_menu")
 @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
 public class AdminMenu {
@@ -36,7 +39,10 @@ public class AdminMenu {
     @Column(name = "parent_id")
     @JsonProperty("parentId")
     private Integer parentId;
+
+    private String perms;
     //子菜单
+    @Transient
     private List<AdminMenu> childAdminMenus;
 
 }

@@ -3,27 +3,26 @@ package com.bhsoftware.projectserver.controller;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.bhsoftware.projectserver.JPADao.JpaBookDao;
 import com.bhsoftware.projectserver.entity.*;
+import com.bhsoftware.projectserver.mapper.UserMapper;
 import com.bhsoftware.projectserver.result.Result;
 import com.bhsoftware.projectserver.service.*;
 import com.bhsoftware.projectserver.shiro.ShiroUtil;
 import com.bhsoftware.projectserver.utils.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.server.Session;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpSession;
 import java.io.File;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 @Api(description = "后台接口")
 @Controller
 public class LoginController {
@@ -51,6 +49,9 @@ public class LoginController {
 //
 //        }
 //    }
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Autowired
     private UserService userService;
@@ -119,21 +120,36 @@ public class LoginController {
 
 
     @ApiOperation(value = "shiro用户登录", notes = "shiro用户登录")
-    @PostMapping(value = "/api/login")
+    @RequestMapping(value = "/api/login")
     @ResponseBody
-    public Result login(@RequestBody User requestUser) {
+    public  Map<String, Object> login(@RequestBody User requestUser) {
         String username = requestUser.getUsername();
         String password = requestUser.getPassword();
+        System.out.println(username);
+        User user = userMapper.selectByUserName(username);
+        Map<String, Object> map = new HashMap<>();
         //提交登录
         Subject subject = SecurityUtils.getSubject();
         if (!subject.isAuthenticated()) {
             UsernamePasswordToken token = new UsernamePasswordToken(username, password);
             subject.login(token);
-            return  new Result(200);
+            subject.checkPermission("admin");
+            System.out.println(subject.isAuthenticated());
+            map.put("user",user);
+            map.put("code",200);
+            return map;
         }
         else {
-            return  new Result(400);
+            map.put("code",400);
+            return map;
         }
+    }
+
+    @ApiOperation(value = "测试redis", notes = "测试redis")
+    @PostMapping("/api/test")
+    @ResponseBody
+    public void testRedis(@RequestParam String username){
+        User user=userMapper.getUserByName(username);
     }
 
     @ApiOperation(value = "用户退出登录", notes = "用户退出登录")
@@ -149,6 +165,7 @@ public class LoginController {
     @ApiOperation(value = "返回所有用户", notes = "返回所有用户")
     @GetMapping("/api/find")
     @ResponseBody
+    @Cacheable(cacheNames = "user",key="123")
     public Response<PageInfo<User>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
                                            @RequestParam(value = "pageSize", required = false, defaultValue = "1") Integer pageSize,
                                            @RequestParam(value = "username", required = false) String username) {
@@ -430,6 +447,22 @@ public class LoginController {
         userService.insert(user);
     }
 
+    @ApiOperation(value = "mongodb新增用户", notes = "mongodb新增用户")
+    @PostMapping(value = "/api/mongdbDelete")
+    @ResponseBody
+    public void deleteUserByMongo(@RequestParam String username){
+        userService.deleteUser(username);
+    }
 
+
+    @ApiOperation(value = "权限拦截", notes = "权限拦截")
+    @GetMapping("/api/admin/user/role")
+//    @RequiresUser
+//    @RequiresRoles("管理员")
+    @RequiresPermissions("user:role")
+    @ResponseBody
+    public void userRole()  {
+       System.out.println("成功");
+    }
 }
 

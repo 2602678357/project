@@ -3,20 +3,19 @@ package com.bhsoftware.projectserver.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
- * 实体类
+ * 用户实体类
  */
 @Data
 @ToString
 @Entity
 @Table(name = "user")
 @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")

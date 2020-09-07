@@ -45,9 +45,8 @@ public interface UserMapper {
     User getUserByName(@Param(value = "username") String username);
 
     /**
-     * 根据用户名和密码查找用户
+     * 根据用户名查找用户
      * @param username
-     * @param password
      * @return
      */
     User selectByUserName(@Param("username") String username);

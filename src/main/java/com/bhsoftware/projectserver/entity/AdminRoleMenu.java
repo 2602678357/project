@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @ToString
-//@Entity
+@Entity
 @Table(name = "admin_role_menu")
 @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
 public class AdminRoleMenu {

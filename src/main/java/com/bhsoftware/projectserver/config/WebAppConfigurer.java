@@ -1,28 +1,28 @@
 package com.bhsoftware.projectserver.config;
 
-import com.bhsoftware.projectserver.filter.LoginInterceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  解决跨域问题 配置类
  */
 @Configuration
 public class WebAppConfigurer implements WebMvcConfigurer {
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowCredentials(true)
-                .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE","OPTIONS")
-                .maxAge(3600);
-    }
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**")
+//                .allowedOrigins("http://localhost:8080")
+//                .allowCredentials(true)
+//                .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE","OPTIONS")
+//                .maxAge(3600);
+//    }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/**").excludePathPatterns("/index.html");
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new LoginInterceptor())
+//                .addPathPatterns("/**").excludePathPatterns("/index.html");
+//    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 @Data
 @ToString
-@Document(collection = "MongoUser")
+@Document(collection = "M_User")
 public class MongoUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

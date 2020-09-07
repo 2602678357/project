@@ -1,21 +1,24 @@
 package com.bhsoftware.projectserver.shiro;
 
 import com.bhsoftware.projectserver.entity.User;
+import com.bhsoftware.projectserver.mapper.AdminMenuMapper;
+import com.bhsoftware.projectserver.mapper.AdminRoleMapper;
 import com.bhsoftware.projectserver.mapper.UserMapper;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+//import java.util.List;
+//import java.util.Set;
 /**
  * shiro用于认证用户~授权
  * @Author:debug (SteadyJack)
@@ -24,11 +27,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserRealm extends AuthorizingRealm {
 
-    private static final Logger log= LoggerFactory.getLogger(UserRealm.class);
-
-
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private AdminRoleMapper adminRoleMapper;
+
+    @Autowired
+    private AdminMenuMapper adminMenuMapper;
 
 
 
@@ -39,7 +45,21 @@ public class UserRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection){
-        return null;
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+        User user  = (User)principalCollection.getPrimaryPrincipal();
+        adminRoleMapper.findRoleByUserName(user.getUsername()).stream().forEach(
+            adminRole -> {
+                authorizationInfo.addRole(adminRole.getName());
+                adminMenuMapper.findAdminMenuByRoleId(adminRole.getId()).stream().forEach(
+                      adminMenu -> {
+                          authorizationInfo.addStringPermission(adminMenu.getPerms());
+                      }
+                );
+            }
+        );
+        System.out.println("当前对象权限标识"+authorizationInfo.getStringPermissions());
+        System.out.println("当前用户角色是"+authorizationInfo.getRoles());
+        return authorizationInfo;
     }
 
     /**
@@ -51,10 +71,9 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken token= (UsernamePasswordToken) authenticationToken;
-        final String username=token.getUsername();
-        final String password=String.valueOf(token.getPassword());
+        String username=token.getUsername();
+        //final String password=String.valueOf(token.getPassword());
         User user= userMapper.selectByUserName(username);
-        System.out.println(user.toString());
         //账户不存在
         if(user==null){
             throw new UnknownAccountException("账户不存在");
@@ -64,9 +83,9 @@ public class UserRealm extends AuthorizingRealm {
             throw  new DisabledAccountException("账户已被禁用");
         }
         SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user,user.getPassword(), ByteSource.Util.bytes(user.getSalt()),getName());
-        log.info("信息是:",info);
-        Session session=SecurityUtils.getSubject().getSession();
+        Session session= SecurityUtils.getSubject().getSession();
         session.setAttribute("user",user);
+        System.out.println("获取session存入的用户"+session.getAttribute("user").toString());
         session.setTimeout(60000);//设置session 10分钟
         return info;
     }

@@ -2,12 +2,14 @@ package com.bhsoftware.projectserver.utils;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 自定义数据类型返回对象
  * @param <T>
  */
 @Data
-public class Response<T> {
+public class Response<T> implements Serializable {
 
     private Boolean success;
 

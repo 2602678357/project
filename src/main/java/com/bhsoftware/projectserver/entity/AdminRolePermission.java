@@ -5,27 +5,24 @@ import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
-/**
- * 用户实体类
- */
 @Data
 @ToString
 @Entity
-@Table(name = "user")
+@Table(name = "admin_role_permission")
 @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
-public class User implements Serializable {
+public class AdminRolePermission {
+
+    //菜单id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
-    private int id;
-    private String username;
-    private String password;
-    private Integer status;
-    private String email;
-    private String name;
-    private String phone;
-    private String salt;
+    private Integer id;
+
+    //角色id
+    private Integer rid;
+
+    //权限id
+    private Integer pid;
 
 }

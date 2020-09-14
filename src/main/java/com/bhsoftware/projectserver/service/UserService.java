@@ -4,7 +4,6 @@ import com.bhsoftware.projectserver.JPADao.JPAUserDao;
 import com.bhsoftware.projectserver.entity.User;
 import com.bhsoftware.projectserver.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -75,7 +74,6 @@ public class UserService {
      * @param phone 电话
      * @param realname 真实姓名
      */
-    @Cacheable(cacheNames = "zy",key="#p1",unless = "#result=null")
     public void addUser(String username, String password, String email,String phone,String name,String salt){
         userMapper.insertUser(username,password,email,phone,name,salt);
     }
@@ -96,7 +94,6 @@ public class UserService {
      * @param username
      * @return
      */
-    @Cacheable(cacheNames = "test",key="123")
     public User getUserByName(String username){
         return userMapper.getUserByName(username);
     }
@@ -124,6 +121,11 @@ public class UserService {
     public void deleteUser(String username){
         Query query=Query.query(Criteria.where("username").is(username));
         mongoTemplate.remove(query,User.class);
+    }
+
+    public List<User> searchUser(String username){
+        Query query=Query.query(Criteria.where("username").is(username));
+        return mongoTemplate.find(query,User.class);
     }
 
 }

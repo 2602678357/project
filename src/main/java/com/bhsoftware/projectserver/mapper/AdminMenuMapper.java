@@ -47,13 +47,9 @@ public interface AdminMenuMapper {
      * 根据用户名查菜单
      * @return
      */
-    @Select("SELECT DISTINCT component,name_zh,path,parent_id,admin_role_menu.mid AS " +
-            "id,admin_role_menu.rid FROM admin_menu LEFT JOIN admin_role_menu ON \n" +
-            "admin_menu.id=admin_role_menu.mid " +
-            "WHERE admin_role_menu.rid = ANY (SELECT nameRole.id FROM " +
-            "(SELECT admin_role.id,user.username FROM USER LEFT JOIN  \n" +
+    @Select("SELECT name_zh,name,component,path,parent_id,admin_role_menu.mid AS id,admin_role_menu.rid FROM admin_menu LEFT JOIN admin_role_menu ON \n" +
+            "admin_menu.id=admin_role_menu.mid WHERE admin_role_menu.rid = ANY (SELECT nameRole.id FROM (SELECT admin_role.id,user.username FROM user LEFT JOIN  \n" +
             "admin_user_role ON user.id=admin_user_role.uid \n" +
-            "LEFT JOIN admin_role ON admin_user_role.rid=admin_role.id)" +
-            "nameRole WHERE nameRole.username=#{username})")
+            "LEFT JOIN admin_role ON admin_user_role.rid=admin_role.id)nameRole WHERE nameRole.username=#{username})GROUP BY name_zh")
     List<AdminMenu> getAdminMenuListByName(@Param(value="username")String username);
 }

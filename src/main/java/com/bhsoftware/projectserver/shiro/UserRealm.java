@@ -1,7 +1,7 @@
 package com.bhsoftware.projectserver.shiro;
 
 import com.bhsoftware.projectserver.entity.User;
-import com.bhsoftware.projectserver.mapper.AdminMenuMapper;
+import com.bhsoftware.projectserver.mapper.AdminPermissonMapper;
 import com.bhsoftware.projectserver.mapper.AdminRoleMapper;
 import com.bhsoftware.projectserver.mapper.UserMapper;
 import org.apache.shiro.SecurityUtils;
@@ -34,9 +34,7 @@ public class UserRealm extends AuthorizingRealm {
     private AdminRoleMapper adminRoleMapper;
 
     @Autowired
-    private AdminMenuMapper adminMenuMapper;
-
-
+    private AdminPermissonMapper adminPermissonMapper;
 
     /**
      * 资源-权限分配 ~ 授权 ~ 需要将分配给当前用户的权限列表塞给shiro的权限字段中去
@@ -50,10 +48,10 @@ public class UserRealm extends AuthorizingRealm {
         adminRoleMapper.findRoleByUserName(user.getUsername()).stream().forEach(
             adminRole -> {
                 authorizationInfo.addRole(adminRole.getName());
-                adminMenuMapper.findAdminMenuByRoleId(adminRole.getId()).stream().forEach(
-                      adminMenu -> {
-                          authorizationInfo.addStringPermission(adminMenu.getPerms());
-                      }
+                adminPermissonMapper.findAdminPermissionByRoleId(adminRole.getId()).stream().forEach(
+                        adminPerm -> {
+                            authorizationInfo.addStringPermission(adminPerm.getDesc());
+                        }
                 );
             }
         );
@@ -86,7 +84,8 @@ public class UserRealm extends AuthorizingRealm {
         Session session= SecurityUtils.getSubject().getSession();
         session.setAttribute("user",user);
         System.out.println("获取session存入的用户"+session.getAttribute("user").toString());
-        session.setTimeout(60000);//设置session 10分钟
+        session.setTimeout(600000);//设置session 10分钟
+        System.out.println("当前是"+info);
         return info;
     }
 

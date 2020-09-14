@@ -5,6 +5,8 @@ import com.bhsoftware.projectserver.JPADao.JpaBookDao;
 import com.bhsoftware.projectserver.entity.*;
 import com.bhsoftware.projectserver.mapper.UserMapper;
 import com.bhsoftware.projectserver.result.Result;
+import com.bhsoftware.projectserver.result.ResultCode;
+import com.bhsoftware.projectserver.result.ResultFactory;
 import com.bhsoftware.projectserver.service.*;
 import com.bhsoftware.projectserver.shiro.ShiroUtil;
 import com.bhsoftware.projectserver.utils.*;
@@ -12,9 +14,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -120,28 +122,27 @@ public class LoginController {
 
 
     @ApiOperation(value = "shiro用户登录", notes = "shiro用户登录")
-    @RequestMapping(value = "/api/login")
+    @PostMapping(value = "/api/login")
     @ResponseBody
-    public  Map<String, Object> login(@RequestBody User requestUser) {
+    public  Result login(
+            @RequestBody User requestUser
+            ) {
+        ResultFactory resultFactory=new ResultFactory();
         String username = requestUser.getUsername();
         String password = requestUser.getPassword();
         System.out.println(username);
         User user = userMapper.selectByUserName(username);
-        Map<String, Object> map = new HashMap<>();
         //提交登录
         Subject subject = SecurityUtils.getSubject();
         if (!subject.isAuthenticated()) {
             UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+            token.setRememberMe(true);
             subject.login(token);
-            subject.checkPermission("admin");
-            System.out.println(subject.isAuthenticated());
-            map.put("user",user);
-            map.put("code",200);
-            return map;
+//            subject.checkPermission("用户管理");
+            return resultFactory.buildSuccessResult2(ResultCode.SUCCESS,user);
         }
         else {
-            map.put("code",400);
-            return map;
+            return ResultFactory.buildFailCode();
         }
     }
 
@@ -376,7 +377,7 @@ public class LoginController {
      * @param requestUser
      * @return
      */
-    @ApiOperation(value = "增加用户", notes = "增加用户")
+    @ApiOperation(value = "注册用户", notes = "注册用户")
     @PostMapping("/api/addUser")
     @ResponseBody
     public Result addUser(@RequestBody User requestUser){
@@ -390,9 +391,9 @@ public class LoginController {
             String salt =SaltUtil.getSalt();
             String password= ShiroUtil.sha256(getpassword, salt);
             userService.addUser(username,password,email,phone,name,salt);
-            return new Result(200);
+            return  ResultFactory.buildSuccessCode();
         }
-        return new Result(400);
+        return  ResultFactory.buildFailCode();
     }
 
     /**
@@ -440,29 +441,58 @@ public class LoginController {
      * mongodb新增用户
      * @param user
      */
-    @ApiOperation(value = "mongodb新增用户", notes = "mongodb新增用户")
-    @PostMapping(value = "/api/mongdbAdd")
-    @ResponseBody
-    public void addUserByMongdb(@RequestBody User user){
-        userService.insert(user);
-    }
+//    @ApiOperation(value = "mongodb新增用户", notes = "mongodb新增用户")
+//    @PostMapping(value = "/api/mongodbAdd")
+//    @ResponseBody
+//    public void addUserByMongdb(@RequestBody User user){
+//        userService.insert(user);
+//    }
 
-    @ApiOperation(value = "mongodb新增用户", notes = "mongodb新增用户")
-    @PostMapping(value = "/api/mongdbDelete")
-    @ResponseBody
-    public void deleteUserByMongo(@RequestParam String username){
-        userService.deleteUser(username);
-    }
+//    @ApiOperation(value = "mongodb删除用户", notes = "mongodb删除用户")
+//    @PostMapping(value = "/api/mongodbDelete")
+//    @ResponseBody
+//    public void deleteUserByMongo(@RequestParam String username){
+//        userService.deleteUser(username);
+//    }
+
+
+//    @ApiOperation(value = "mongodb查询用户", notes = "mongodb查询用户")
+//    @GetMapping("/api/mongodbSearch")
+//    @ResponseBody
+//    public List<User> searchUser(@RequestParam String username){
+//       List<User> user=userService.searchUser(username);
+//       System.out.println(user.toString());
+//       return user;
+//    }
+
+
+//    @ApiOperation(value = "权限拦截", notes = "权限拦截")
+////    @RequiresPermissions("admin")
+//    @GetMapping("/api/admin")
+//    @ResponseBody
+//    public Map<String,Object> userRole() {
+//        User user=(User)SecurityUtils.getSubject().getSession().getAttribute("user");
+//        String username=user.getUsername();
+//        List<AdminMenu> menuList=adminMenuService.getAdminMenuList(username);
+//        System.out.println(menuList);
+//        Map<String ,Object> map=new HashedMap();
+//        map.put("list",menuList);
+//        map.put("code",200);
+//       return map;
+//    }
 
 
     @ApiOperation(value = "权限拦截", notes = "权限拦截")
-    @GetMapping("/api/admin/user/role")
-//    @RequiresUser
-//    @RequiresRoles("管理员")
-    @RequiresPermissions("user:role")
+//    @RequiresPermissions("admin")
+    @GetMapping("/api/admin")
     @ResponseBody
-    public void userRole()  {
-       System.out.println("成功");
+    public Map<String,Object> userRole2() {
+        User user=(User)SecurityUtils.getSubject().getSession().getAttribute("user");
+        List<AdminMenu> menuList=adminMenuService.getMenuByCurrentUser(user.getId());
+        Map<String ,Object> map=new HashedMap();
+        map.put("list",menuList);
+        map.put("code",200);
+        return map;
     }
 }
 

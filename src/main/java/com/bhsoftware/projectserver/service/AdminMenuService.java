@@ -1,6 +1,10 @@
 package com.bhsoftware.projectserver.service;
 
+import com.bhsoftware.projectserver.JPADao.AdminMenuDao;
+import com.bhsoftware.projectserver.JPADao.AdminRoleMenuDao;
 import com.bhsoftware.projectserver.entity.AdminMenu;
+import com.bhsoftware.projectserver.entity.AdminRoleMenu;
+import com.bhsoftware.projectserver.entity.AdminUserRole;
 import com.bhsoftware.projectserver.mapper.AdminMenuMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +12,31 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminMenuService {
 
     @Autowired
     private AdminMenuMapper adminMenuMapper;
+
+    @Autowired
+    private AdminMenuDao adminMenuDao;
+
+    @Autowired
+    private AdminUserRoleService adminUserRoleService;
+
+    @Autowired
+    private AdminRoleMenuDao adminRoleMenuDao;
+
+    /**
+     * 根据id做父id查询
+     * @param id
+     * @return
+     */
+    public List<AdminMenu> getAllByParentId(Integer id){
+        return adminMenuDao.findAllByParentId(id);
+    }
 
     public List<AdminMenu> getAdminMenuList(String username){
 //        先查所有
@@ -63,6 +86,35 @@ public class AdminMenuService {
                 return null;
             }
         return childList;
+    }
+
+
+    /**
+     * 调用jpa方法
+     */
+    public  List<AdminMenu> getMenuByCurrentUser(Integer id){
+        //get roles rid
+        List<Integer> rids = adminUserRoleService.listAllByUid(id)
+             .stream()
+             .map(AdminUserRole::getRid)
+             .collect(Collectors.toList());
+        //获取菜单角色id
+        List<Integer> menuIds=adminRoleMenuDao.findAllByRidIn(rids).stream().map(AdminRoleMenu::getMid) .collect(Collectors.toList());
+        //获取菜单项
+        List<AdminMenu> menus=adminMenuDao.findAllByIdIn(menuIds).stream().distinct().collect(Collectors.toList());
+        handleMenus(menus);
+        return menus;
+    }
+
+    /**
+     * 生成菜单框架
+     */
+    public void handleMenus(List<AdminMenu> menus){
+        menus.forEach(m->{
+            List<AdminMenu> children=getAllByParentId(m.getId());
+            m.setChildAdminMenus(children);
+        });
+        menus.removeIf(m ->m.getParentId()!=0);
     }
 
 }

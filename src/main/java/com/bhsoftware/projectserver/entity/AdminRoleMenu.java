@@ -1,19 +1,14 @@
 package com.bhsoftware.projectserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
+import java.io.Serializable;
 
-@Data
-@ToString
 @Entity
 @Table(name = "admin_role_menu")
 @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
-public class AdminRoleMenu {
+public class AdminRoleMenu implements Serializable {
     //菜单id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,4 +21,27 @@ public class AdminRoleMenu {
     //菜单id
     private Integer mid;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getRid() {
+        return rid;
+    }
+
+    public void setRid(Integer rid) {
+        this.rid = rid;
+    }
+
+    public Integer getMid() {
+        return mid;
+    }
+
+    public void setMid(Integer mid) {
+        this.mid = mid;
+    }
 }

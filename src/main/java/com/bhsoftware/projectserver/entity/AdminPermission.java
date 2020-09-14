@@ -1,31 +1,31 @@
 package com.bhsoftware.projectserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
-/**
- * 用户实体类
- */
 @Data
 @ToString
 @Entity
-@Table(name = "user")
+@Table(name = "admin_permission")
 @JsonIgnoreProperties({"handler","hibernateLazyInitializer"})
-public class User implements Serializable {
+public class AdminPermission {
+
+    //权限
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
-    private int id;
-    private String username;
-    private String password;
-    private Integer status;
-    private String email;
-    private String name;
-    private String phone;
-    private String salt;
+    private Integer id;
 
+    //名称
+    private String name;
+    //名称
+    @Column(name = "desc_")
+    @JsonProperty("desc")
+    private String desc;
+    //路径
+    private String url;
 }

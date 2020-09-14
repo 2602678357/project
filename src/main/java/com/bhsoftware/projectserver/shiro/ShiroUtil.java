@@ -11,6 +11,7 @@ public class ShiroUtil {
     //加密算法
     public final static String hashAlgorithmName = "SHA-256";
 
+//    public final static String hashAlgorithmName = "SHA-512";
     //循环次数
     public final static int hashIterations = 16;
 
@@ -53,10 +54,10 @@ public class ShiroUtil {
         SecurityUtils.getSubject().logout();
     }
 
-    	public static void main(String[] args) {
-		String password="123456";
-		System.out.println(ShiroUtil.sha256(password, "YzcmCZNvbXocrsz9dm8e"));
-	}
+//    	public static void main(String[] args) {
+//		String password="123456";
+//		System.out.println(ShiroUtil.sha256(password, "YzcmCZNvbXocrsz9dm8e"));
+//	}
 
 }
 

@@ -1,5 +1,6 @@
 package com.bhsoftware.projectserver.config;
 
+import com.bhsoftware.projectserver.filter.CustomerUserFilter;
 import com.bhsoftware.projectserver.shiro.UserRealm;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -12,22 +13,14 @@ import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-
+import javax.servlet.Filter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
 public class ShiroConfig {
 
-    //安全器管理-管理所有的subject
-//    @Bean
-//    public SecurityManager securityManager(UserRealm userRealm){
-//        DefaultWebSecurityManager securityManager=new DefaultWebSecurityManager();
-//        securityManager.setRememberMeManager(null);
-//        securityManager.setRealm(userRealm);
-//        return securityManager;
-//    }
+
     @Bean
     public SecurityManager securityManager(UserRealm userRealm) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
@@ -37,15 +30,16 @@ public class ShiroConfig {
         return securityManager;
     }
 
-    //过滤链配置
+//    过滤链配置
     @Bean("shiroFilter")
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager){
         ShiroFilterFactoryBean shiroFilter=new ShiroFilterFactoryBean();
         shiroFilter.setSecurityManager(securityManager);
-        //设定用户没有登录认证时的跳转链接、没有授权时的跳转链接
-        shiroFilter.setLoginUrl("/login");
-        shiroFilter.setUnauthorizedUrl("/");
-
+//        //设定用户没有登录认证时的跳转链接、没有授权时的跳转链接
+////        shiroFilter.setLoginUrl("/login");
+////        shiroFilter.setUnauthorizedUrl("/");
+        Map <String, Filter> filters = shiroFilter.getFilters();
+        filters.put("customerUser", new CustomerUserFilter());
         //过滤器链配置
         Map<String, String> filterMap = new LinkedHashMap();
         filterMap.put("/api/sms/*", "anon");
@@ -59,8 +53,8 @@ public class ShiroConfig {
         filterMap.put("/webjars/springfox-swagger-ui/**", "anon");
         filterMap.put("/swagger-resources/**", "anon");
         filterMap.put("/v2/api-docs", "anon");
-        filterMap.put("/**","authc");
-
+        filterMap.put("/**","customerUser");
+////        filterMap.put("/**","authc");
         shiroFilter.setFilterChainDefinitionMap(filterMap);
         return shiroFilter;
     }
@@ -73,25 +67,22 @@ public class ShiroConfig {
     }
 
     /**
-     *  开启shiro aop注解支持.
-     *  使用代理方式;所以需要开启代码支持;
-     * @param securityManager
-     * @return
-     */
-    /**
-     * 开启Shiro的注解(如@RequiresRoles,@RequiresPermissions),需借助SpringAOP扫描使用Shiro注解的类,并在必要时进行安全逻辑验证
-     * 配置以下两个bean(DefaultAdvisorAutoProxyCreator(可选)和AuthorizationAttributeSourceAdvisor)即可实现此功能
+     *  开启Shiro的注解(如@RequiresRoles,@RequiresPermissions)
      * @return
      */
     @Bean
-    @DependsOn({"lifecycleBeanPostProcessor"})
     public DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator(){
         DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
         advisorAutoProxyCreator.setProxyTargetClass(true);
         return advisorAutoProxyCreator;
     }
+    /**
+     * 开启aop注解支持
+     * @param securityManager
+     * @return
+     */
     @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager){
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
